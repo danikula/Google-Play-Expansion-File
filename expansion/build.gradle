@@ -1,4 +1,14 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.novoda:bintray-release:0.2.10'
+    }
+}
+
 apply plugin: 'com.android.library'
+apply plugin: 'bintray-release'
 
 android {
     compileSdkVersion 22
@@ -10,10 +20,24 @@ android {
         versionCode 2
         versionName '1.1'
     }
-}
 
+    lintOptions {
+        abortOnError false
+    }
+}
 
 dependencies {
     compile project (':license')
     compile project (':zip')
 }
+
+publish {
+    userOrg = 'alexeydanilov'
+    repoName = 'apk-expansion'
+    groupId = 'com.danikula.expansion'
+    artifactId = 'expansion'
+    publishVersion = '1.1'
+    description = 'Google`s `play_apk_expansion` open source project.'
+    website = 'https://github.com/danikula/Google-Play-Expansion-File'
+}
+
