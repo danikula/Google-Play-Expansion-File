@@ -78,11 +78,13 @@ public class DownloadsDB {
                 MetadataColumns.FLAGS +
                 " FROM "
                 + MetadataColumns.TABLE_NAME + " LIMIT 1", null);
-        if (null != cur && cur.moveToFirst()) {
-            mVersionCode = cur.getInt(0);
-            mMetadataRowID = cur.getLong(1);
-            mStatus = cur.getInt(2);
-            mFlags = cur.getInt(3);
+        if (null != cur) {
+            if (cur.moveToFirst()) {
+                mVersionCode = cur.getInt(0);
+                mMetadataRowID = cur.getLong(1);
+                mStatus = cur.getInt(2);
+                mFlags = cur.getInt(3);
+            }
             cur.close();
         }
         mDownloadsDB = this;
