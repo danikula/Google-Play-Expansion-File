@@ -26,10 +26,16 @@ import android.net.NetworkInfo;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Contains useful helper functions, typically tied to the application context.
  */
 class SystemFacade {
+
+    private static final Logger LOG = LoggerFactory.getLogger("SystemFacade");
+
     private Context mContext;
     private NotificationManager mNotificationManager;
 
@@ -47,14 +53,14 @@ class SystemFacade {
         ConnectivityManager connectivity =
                 (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivity == null) {
-            Log.w(Constants.TAG, "couldn't get connectivity manager");
+            LOG.warn("couldn't get connectivity manager");
             return null;
         }
 
         NetworkInfo activeInfo = connectivity.getActiveNetworkInfo();
         if (activeInfo == null) {
             if (Constants.LOGVV) {
-                Log.v(Constants.TAG, "network is not available");
+                LOG.info("network is not available");
             }
             return null;
         }
@@ -65,7 +71,7 @@ class SystemFacade {
         ConnectivityManager connectivity =
                 (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivity == null) {
-            Log.w(Constants.TAG, "couldn't get connectivity manager");
+            LOG.warn("couldn't get connectivity manager");
             return false;
         }
 
@@ -74,12 +80,12 @@ class SystemFacade {
         TelephonyManager tm = (TelephonyManager) mContext
                 .getSystemService(Context.TELEPHONY_SERVICE);
         if (null == tm) {
-            Log.w(Constants.TAG, "couldn't get telephony manager");
+            LOG.warn("couldn't get telephony manager");
             return false;
         }
         boolean isRoaming = isMobile && tm.isNetworkRoaming();
         if (Constants.LOGVV && isRoaming) {
-            Log.v(Constants.TAG, "network is roaming");
+            LOG.info("network is roaming");
         }
         return isRoaming;
     }

@@ -17,14 +17,16 @@
 package com.google.android.vending.licensing;
 
 import android.content.SharedPreferences;
-import android.util.Log;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An wrapper for SharedPreferences that transparently performs data obfuscation.
  */
 public class PreferenceObfuscator {
 
-    private static final String TAG = "PreferenceObfuscator";
+    private static final Logger LOG = LoggerFactory.getLogger("PreferenceObfuscator");
 
     private final SharedPreferences mPreferences;
     private final Obfuscator mObfuscator;
@@ -58,7 +60,7 @@ public class PreferenceObfuscator {
                 result = mObfuscator.unobfuscate(value, key);
             } catch (ValidationException e) {
                 // Unable to unobfuscate, data corrupt or tampered
-                Log.w(TAG, "Validation error while reading preference: " + key);
+                LOG.warn("Validation error while reading preference: " + key);
                 result = defValue;
             }
         } else {

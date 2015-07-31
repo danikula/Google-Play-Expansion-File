@@ -16,18 +16,19 @@
 
 package com.google.android.vending.licensing;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Log;
 
 /**
  * Default policy. All policy decisions are based off of response data received
@@ -45,7 +46,7 @@ import android.util.Log;
  */
 public class ServerManagedPolicy implements Policy {
 
-    private static final String TAG = "ServerManagedPolicy";
+    private static final Logger LOG = LoggerFactory.getLogger("ServerManagedPolicy");
     private static final String PREFS_FILE = "com.android.vending.licensing.ServerManagedPolicy";
     private static final String PREF_LAST_RESPONSE = "lastResponse";
     private static final String PREF_VALIDITY_TIMESTAMP = "validityTimestamp";
@@ -167,7 +168,7 @@ public class ServerManagedPolicy implements Policy {
             lValidityTimestamp = Long.parseLong(validityTimestamp);
         } catch (NumberFormatException e) {
             // No response or not parsable, expire in one minute.
-            Log.w(TAG, "License validity timestamp (VT) missing, caching for a minute");
+            LOG.warn("License validity timestamp (VT) missing, caching for a minute");
             lValidityTimestamp = System.currentTimeMillis() + MILLIS_PER_MINUTE;
             validityTimestamp = Long.toString(lValidityTimestamp);
         }
@@ -193,7 +194,7 @@ public class ServerManagedPolicy implements Policy {
             lRetryUntil = Long.parseLong(retryUntil);
         } catch (NumberFormatException e) {
             // No response or not parsable, expire immediately
-            Log.w(TAG, "License retry timestamp (GT) missing, grace period disabled");
+            LOG.warn("License retry timestamp (GT) missing, grace period disabled");
             retryUntil = "0";
             lRetryUntil = 0l;
         }
@@ -219,7 +220,7 @@ public class ServerManagedPolicy implements Policy {
             lMaxRetries = Long.parseLong(maxRetries);
         } catch (NumberFormatException e) {
             // No response or not parsable, expire immediately
-            Log.w(TAG, "Licence retry count (GR) missing, grace period disabled");
+            LOG.warn("Licence retry count (GR) missing, grace period disabled");
             maxRetries = "0";
             lMaxRetries = 0l;
         }
@@ -268,7 +269,7 @@ public class ServerManagedPolicy implements Policy {
                 results.put(item.getName(), item.getValue());
             }
         } catch (URISyntaxException e) {
-          Log.w(TAG, "Invalid syntax error while decoding extras data from server.");
+            LOG.warn("Invalid syntax error while decoding extras data from server.");
         }
         return results;
     }

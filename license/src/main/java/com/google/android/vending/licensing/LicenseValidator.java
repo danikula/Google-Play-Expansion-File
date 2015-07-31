@@ -16,11 +16,14 @@
 
 package com.google.android.vending.licensing;
 
+import android.text.TextUtils;
+import android.util.Log;
+
 import com.google.android.vending.licensing.util.Base64;
 import com.google.android.vending.licensing.util.Base64DecoderException;
 
-import android.text.TextUtils;
-import android.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -33,7 +36,7 @@ import java.security.SignatureException;
  * and process the response.
  */
 class LicenseValidator {
-    private static final String TAG = "LicenseValidator";
+    private static final Logger LOG = LoggerFactory.getLogger("LicenseValidator");
 
     // Server response codes.
     private static final int LICENSED = 0x0;
@@ -99,7 +102,7 @@ class LicenseValidator {
                 sig.update(signedData.getBytes());
 
                 if (!sig.verify(Base64.decode(signature))) {
-                    Log.e(TAG, "Signature verification failed.");
+                    LOG.error("Signature verification failed.");
                     handleInvalidResponse();
                     return;
                 }
@@ -112,7 +115,7 @@ class LicenseValidator {
             } catch (SignatureException e) {
                 throw new RuntimeException(e);
             } catch (Base64DecoderException e) {
-                Log.e(TAG, "Could not Base64-decode signature.");
+                LOG.error("Could not Base64-decode signature.", e);
                 handleInvalidResponse();
                 return;
             }
@@ -121,31 +124,31 @@ class LicenseValidator {
             try {
                 data = ResponseData.parse(signedData);
             } catch (IllegalArgumentException e) {
-                Log.e(TAG, "Could not parse response.");
+                LOG.error("Could not parse response.", e);
                 handleInvalidResponse();
                 return;
             }
 
             if (data.responseCode != responseCode) {
-                Log.e(TAG, "Response codes don't match.");
+                LOG.error("Response codes don't match.");
                 handleInvalidResponse();
                 return;
             }
 
             if (data.nonce != mNonce) {
-                Log.e(TAG, "Nonce doesn't match.");
+                LOG.error("Nonce doesn't match.");
                 handleInvalidResponse();
                 return;
             }
 
             if (!data.packageName.equals(mPackageName)) {
-                Log.e(TAG, "Package name doesn't match.");
+                LOG.error("Package name doesn't match.");
                 handleInvalidResponse();
                 return;
             }
 
             if (!data.versionCode.equals(mVersionCode)) {
-                Log.e(TAG, "Version codes don't match.");
+                LOG.error("Version codes don't match.");
                 handleInvalidResponse();
                 return;
             }
@@ -153,7 +156,7 @@ class LicenseValidator {
             // Application-specific user identifier.
             userId = data.userId;
             if (TextUtils.isEmpty(userId)) {
-                Log.e(TAG, "User identifier is empty.");
+                LOG.error("User identifier is empty.");
                 handleInvalidResponse();
                 return;
             }
@@ -169,15 +172,15 @@ class LicenseValidator {
                 handleResponse(Policy.NOT_LICENSED, data);
                 break;
             case ERROR_CONTACTING_SERVER:
-                Log.w(TAG, "Error contacting licensing server.");
+                LOG.warn("Error contacting licensing server.");
                 handleResponse(Policy.RETRY, data);
                 break;
             case ERROR_SERVER_FAILURE:
-                Log.w(TAG, "An error has occurred on the licensing server.");
+                LOG.warn("An error has occurred on the licensing server.");
                 handleResponse(Policy.RETRY, data);
                 break;
             case ERROR_OVER_QUOTA:
-                Log.w(TAG, "Licensing server is refusing to talk to this device, over quota.");
+                LOG.warn("Licensing server is refusing to talk to this device, over quota.");
                 handleResponse(Policy.RETRY, data);
                 break;
             case ERROR_INVALID_PACKAGE_NAME:
@@ -190,7 +193,7 @@ class LicenseValidator {
                 handleApplicationError(LicenseCheckerCallback.ERROR_NOT_MARKET_MANAGED);
                 break;
             default:
-                Log.e(TAG, "Unknown response code for license check.");
+                LOG.error("Unknown response code for license check.");
                 handleInvalidResponse();
         }
     }

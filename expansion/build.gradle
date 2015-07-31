@@ -18,7 +18,7 @@ android {
         minSdkVersion 4
         targetSdkVersion 22
         versionCode 2
-        versionName '1.1'
+        versionName '1.1.2'
     }
 
     lintOptions {
@@ -29,6 +29,7 @@ android {
 dependencies {
     compile project (':license')
     compile project (':zip')
+    compile 'org.slf4j:slf4j-api:1.7.7'
 }
 
 publish {
@@ -36,7 +37,7 @@ publish {
     repoName = 'apk-expansion'
     groupId = 'com.danikula.expansion'
     artifactId = 'expansion'
-    publishVersion = '1.1'
+    publishVersion = '1.1.2'
     description = 'Google`s `play_apk_expansion` open source project.'
     website = 'https://github.com/danikula/Google-Play-Expansion-File'
 }

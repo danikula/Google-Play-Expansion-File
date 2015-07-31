@@ -32,6 +32,8 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -58,6 +60,8 @@ import android.util.Log;
  * interface.
  */
 public class DownloaderClientMarshaller {
+
+    private static final Logger LOG = LoggerFactory.getLogger("DownloaderClientMarshaller");
     public static final int MSG_ONDOWNLOADSTATE_CHANGED = 10;
     public static final int MSG_ONDOWNLOADPROGRESS = 11;
     public static final int MSG_ONSERVICECONNECTED = 12;
@@ -176,7 +180,7 @@ public class DownloaderClientMarshaller {
             bindIntent.putExtra(PARAM_MESSENGER, mMessenger);
             if ( !c.bindService(bindIntent, mConnection, Context.BIND_DEBUG_UNBIND) ) {
                 if ( Constants.LOGVV ) {
-                    Log.d(Constants.TAG, "Service Unbound");
+                    LOG.debug("Service Unbound");
                 }
             } else {
                 mBound = true;
@@ -216,8 +220,7 @@ public class DownloaderClientMarshaller {
      * 
      * @param itf An implementation of IDownloaderClient that will be called
      *            when remote method calls are unmarshaled.
-     * @param downloaderService The class for your implementation of {@link
-     * impl.DownloaderService}.
+     * @param downloaderService The class for your implementation of {@link impl.DownloaderService}.
      * @return The {@link IStub} that allows you to connect to the service such that
      * your {@link IDownloaderClient} receives status updates.
      */

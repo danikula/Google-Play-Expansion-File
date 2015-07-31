@@ -20,16 +20,11 @@
  */
 
 package com.google.android.vending.expansion.downloader.impl;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.net.SSLCertificateSocketFactory;
+import android.os.Looper;
+import android.util.Log;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -63,12 +58,19 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.net.SSLCertificateSocketFactory;
-import android.os.Looper;
-import android.util.Log;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URI;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Subclass of the Apache {@link DefaultHttpClient} that is configured with
@@ -82,6 +84,8 @@ import android.util.Log;
  * <pre>context.setAttribute(ClientContext.COOKIE_STORE, cookieStore);</pre>
  */
 public final class AndroidHttpClient implements HttpClient {
+
+    private static final Logger LOG = LoggerFactory.getLogger("AndroidHttpClient");
 
 	static Class<?> sSslSessionCacheClass;
 	static {
@@ -254,7 +258,7 @@ public final class AndroidHttpClient implements HttpClient {
     protected void finalize() throws Throwable {
         super.finalize();
         if (mLeakedException != null) {
-            Log.e(TAG, "Leak found", mLeakedException);
+            LOG.error("Leak found", mLeakedException);
             mLeakedException = null;
         }
     }

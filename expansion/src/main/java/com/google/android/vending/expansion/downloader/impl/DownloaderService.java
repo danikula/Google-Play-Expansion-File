@@ -50,6 +50,9 @@ import android.provider.Settings.Secure;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 
 /**
@@ -65,7 +68,7 @@ public abstract class DownloaderService extends CustomIntentService implements I
         super("LVLDownloadService");
     }
 
-    private static final String LOG_TAG = "LVLDL";
+    private static final Logger LOG = LoggerFactory.getLogger("DownloaderService");
 
     // the following NETWORK_* constants are used to indicates specific reasons
     // for disallowing a
@@ -392,7 +395,7 @@ public abstract class DownloaderService extends CustomIntentService implements I
 
     @Override
     public IBinder onBind(Intent paramIntent) {
-        Log.d(Constants.TAG, "Service Bound");
+        LOG.debug("Service Bound");
         return this.mServiceMessenger.getBinder();
     }
 
@@ -534,13 +537,13 @@ public abstract class DownloaderService extends CustomIntentService implements I
                 || isRoaming != mIsRoaming || isAtLeast3G != mIsAtLeast3G);
         if (Constants.LOGVV) {
             if (mStateChanged) {
-                Log.v(LOG_TAG, "Network state changed: ");
-                Log.v(LOG_TAG, "Starting State: " +
+                LOG.info( "Network state changed: ");
+                LOG.info( "Starting State: " +
                         (isConnected ? "Connected " : "Not Connected ") +
                         (isCellularConnection ? "Cellular " : "WiFi ") +
                         (isRoaming ? "Roaming " : "Local ") +
                         (isAtLeast3G ? "3G+ " : "<3G "));
-                Log.v(LOG_TAG, "Ending State: " +
+                LOG.info( "Ending State: " +
                         (mIsConnected ? "Connected " : "Not Connected ") +
                         (mIsCellularConnection ? "Cellular " : "WiFi ") +
                         (mIsRoaming ? "Roaming " : "Local ") +
@@ -575,8 +578,7 @@ public abstract class DownloaderService extends CustomIntentService implements I
             mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         }
         if (mConnectivityManager == null) {
-            Log.w(Constants.TAG,
-                    "couldn't get connectivity manager to poll network state");
+            LOG.warn("couldn't get connectivity manager to poll network state");
         } else {
             NetworkInfo activeInfo = mConnectivityManager
                     .getActiveNetworkInfo();
@@ -804,7 +806,7 @@ public abstract class DownloaderService extends CustomIntentService implements I
                                             // was delivered by Market or
                                             // through
                                             // another mechanism
-                                            Log.d(LOG_TAG, "file " + di.mFileName
+                                            LOG.debug("file " + di.mFileName
                                                     + " found. Not downloading.");
                                             di.mStatus = STATUS_SUCCESS;
                                             di.mTotalBytes = fileSize;
@@ -838,7 +840,7 @@ public abstract class DownloaderService extends CustomIntentService implements I
                                     break;
                                 case LVL_CHECK_REQUIRED:
                                     // DANGER WILL ROBINSON!
-                                    Log.e(LOG_TAG, "In LVL checking loop!");
+                                    LOG.error( "In LVL checking loop!");
                                     mNotification
                                             .onDownloadStateChanged(IDownloaderClient.STATE_FAILED_UNLICENSED);
                                     throw new RuntimeException(
@@ -942,12 +944,12 @@ public abstract class DownloaderService extends CustomIntentService implements I
     private void scheduleAlarm(long wakeUp) {
         AlarmManager alarms = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         if (alarms == null) {
-            Log.e(Constants.TAG, "couldn't get alarm manager");
+            LOG.error("couldn't get alarm manager");
             return;
         }
 
         if (Constants.LOGV) {
-            Log.v(Constants.TAG, "scheduling retry in " + wakeUp + "ms");
+            LOG.info( "scheduling retry in " + wakeUp + "ms");
         }
 
         String className = getAlarmReceiverClassName();
@@ -967,7 +969,7 @@ public abstract class DownloaderService extends CustomIntentService implements I
         if (null != mAlarmIntent) {
             AlarmManager alarms = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             if (alarms == null) {
-                Log.e(Constants.TAG, "couldn't get alarm manager");
+                LOG.error("couldn't get alarm manager");
                 return;
             }
             alarms.cancel(mAlarmIntent);
@@ -991,7 +993,7 @@ public abstract class DownloaderService extends CustomIntentService implements I
             pollNetworkState();
             if (mStateChanged
                     && !isServiceRunning()) {
-                Log.d(Constants.TAG, "InnerBroadcastReceiver Called");
+                LOG.debug("InnerBroadcastReceiver Called");
                 Intent fileIntent = new Intent(context, mService.getClass());
                 fileIntent.putExtra(EXTRA_PENDING_INTENT, mPendingIntent);
                 // send a new intent to the service
@@ -1021,7 +1023,7 @@ public abstract class DownloaderService extends CustomIntentService implements I
             } else if (null != mPendingIntent) {
                 mNotification.setClientIntent(mPendingIntent);
             } else {
-                Log.e(LOG_TAG, "Downloader started in bad state without notification intent.");
+                LOG.error( "Downloader started in bad state without notification intent.");
                 return;
             }
 
@@ -1230,13 +1232,13 @@ public abstract class DownloaderService extends CustomIntentService implements I
         String path = generateTempSaveFileName(filename);
         File expPath = new File(path);
         if (!Helpers.isExternalMediaMounted()) {
-            Log.d(Constants.TAG, "External media not mounted: " + path);
+            LOG.debug("External media not mounted: " + path);
             throw new GenerateSaveFileError(STATUS_DEVICE_NOT_FOUND_ERROR,
                     "external media is not yet mounted");
 
         }
         if (expPath.exists()) {
-            Log.d(Constants.TAG, "File already exists: " + path);
+            LOG.debug("File already exists: " + path);
             throw new GenerateSaveFileError(STATUS_FILE_ALREADY_EXISTS_ERROR,
                     "requested destination file already exists");
         }

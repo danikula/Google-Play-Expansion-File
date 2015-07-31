@@ -17,6 +17,9 @@ import android.content.res.AssetFileDescriptor;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,10 +38,11 @@ import java.util.zip.ZipFile;
 
 public class ZipResourceFile {
 
+    private static final Logger LOG = LoggerFactory.getLogger("zipro");
+
     //
     // Read-only access to Zip archives, with minimal heap allocation.
     //
-    static final String LOG_TAG = "zipro";
     static final boolean LOGV = false;
 
     // 4-byte number
@@ -121,7 +125,7 @@ public class ZipResourceFile {
                 f.seek(localHdrOffset);
                 f.readFully(buf.array());
                 if (buf.getInt(0) != kLFHSignature) {
-                    Log.w(LOG_TAG, "didn't find signature at start of lfh");
+                    LOG.warn("didn't find signature at start of lfh");
                     throw new IOException();
                 }
                 int nameLen = buf.getShort(kLFHNameLen) & 0xFFFF;
@@ -287,10 +291,10 @@ public class ZipResourceFile {
 
         int header = read4LE(f);
         if (header == kEOCDSignature) {
-            Log.i(LOG_TAG, "Found Zip archive, but it looks empty");
+            LOG.info("Found Zip archive, but it looks empty");
             throw new IOException();
         } else if (header != kLFHSignature) {
-            Log.v(LOG_TAG, "Not a Zip archive");
+            LOG.info("Not a Zip archive");
             throw new IOException();
         }
 
@@ -324,14 +328,14 @@ public class ZipResourceFile {
             if (buffer[eocdIdx] == 0x50 && bbuf.getInt(eocdIdx) == kEOCDSignature)
             {
                 if (LOGV) {
-                    Log.v(LOG_TAG, "+++ Found EOCD at index: " + eocdIdx);
+                    LOG.info("+++ Found EOCD at index: " + eocdIdx);
                 }
                 break;
             }
         }
 
         if (eocdIdx < 0) {
-            Log.d(LOG_TAG, "Zip: EOCD not found, " + zipFileName + " is not zip");
+            LOG.debug("Zip: EOCD not found, " + zipFileName + " is not zip");
         }
 
         /*
@@ -345,17 +349,17 @@ public class ZipResourceFile {
 
         // Verify that they look reasonable.
         if (dirOffset + dirSize > fileLength) {
-            Log.w(LOG_TAG, "bad offsets (dir " + dirOffset + ", size " + dirSize + ", eocd "
+            LOG.warn("bad offsets (dir " + dirOffset + ", size " + dirSize + ", eocd "
                     + eocdIdx + ")");
             throw new IOException();
         }
         if (numEntries == 0) {
-            Log.w(LOG_TAG, "empty archive?");
+            LOG.warn("empty archive?");
             throw new IOException();
         }
 
         if (LOGV) {
-            Log.v(LOG_TAG, "+++ numEntries=" + numEntries + " dirSize=" + dirSize + " dirOffset="
+            LOG.info("+++ numEntries=" + numEntries + " dirSize=" + dirSize + " dirOffset="
                     + dirOffset);
         }
 
@@ -379,7 +383,7 @@ public class ZipResourceFile {
 
         for (int i = 0; i < numEntries; i++) {
             if (directoryMap.getInt(currentOffset) != kCDESignature) {
-                Log.w(LOG_TAG, "Missed a central dir sig (at " + currentOffset + ")");
+                LOG.warn("Missed a central dir sig (at " + currentOffset + ")");
                 throw new IOException();
             }
 
@@ -397,7 +401,7 @@ public class ZipResourceFile {
             /* UTF-8 on Android */
             String str = new String(tempBuf, 0, fileNameLen);
             if (LOGV) {
-                Log.v(LOG_TAG, "Filename: " + str);
+                LOG.info("Filename: " + str);
             }
 
             ZipEntryRO ze = new ZipEntryRO(zipFileName, file, str);
@@ -419,7 +423,7 @@ public class ZipResourceFile {
             currentOffset += kCDELen + fileNameLen + extraLen + commentLen;
         }
         if (LOGV) {
-            Log.v(LOG_TAG, "+++ zip good scan " + numEntries + " entries");
+            LOG.info("+++ zip good scan " + numEntries + " entries");
         }
     }
 }

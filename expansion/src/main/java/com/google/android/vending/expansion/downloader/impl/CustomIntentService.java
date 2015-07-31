@@ -23,7 +23,9 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This service differs from IntentService in a few minor ways/ It will not
@@ -32,11 +34,13 @@ import android.util.Log;
  * intent, it does not queue up batches of intents of the same type.
  */
 public abstract class CustomIntentService extends Service {
+
+    private static final Logger LOG = LoggerFactory.getLogger("CancellableIntentService");
+
     private String mName;
     private boolean mRedelivery;
     private volatile ServiceHandler mServiceHandler;
     private volatile Looper mServiceLooper;
-    private static final String LOG_TAG = "CancellableIntentService";
     private static final int WHAT_MESSAGE = -10;
 
     public CustomIntentService(String paramString) {
@@ -65,7 +69,7 @@ public abstract class CustomIntentService extends Service {
             localThread.interrupt();
         }
         this.mServiceLooper.quit();
-        Log.d(LOG_TAG, "onDestroy");
+        LOG.debug("onDestroy");
     }
 
     protected abstract void onHandleIntent(Intent paramIntent);
@@ -103,9 +107,9 @@ public abstract class CustomIntentService extends Service {
             CustomIntentService.this
                     .onHandleIntent((Intent) paramMessage.obj);
             if (shouldStop()) {
-                Log.d(LOG_TAG, "stopSelf");
+                LOG.debug("stopSelf");
                 CustomIntentService.this.stopSelf(paramMessage.arg1);
-                Log.d(LOG_TAG, "afterStopSelf");
+                LOG.debug("afterStopSelf");
             }
         }
     }
