@@ -17,7 +17,6 @@
 package com.google.android.vending.licensing;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.android.vending.licensing.util.Base64;
 import com.google.android.vending.licensing.util.Base64DecoderException;
@@ -58,7 +57,7 @@ class LicenseValidator {
     private final DeviceLimiter mDeviceLimiter;
 
     LicenseValidator(Policy policy, DeviceLimiter deviceLimiter, LicenseCheckerCallback callback,
-             int nonce, String packageName, String versionCode) {
+                     int nonce, String packageName, String versionCode) {
         mPolicy = policy;
         mDeviceLimiter = deviceLimiter;
         mCallback = callback;
@@ -97,6 +96,12 @@ class LicenseValidator {
                 responseCode == LICENSED_OLD_KEY) {
             // Verify signature.
             try {
+                if (TextUtils.isEmpty(signedData)) {
+                    LOG.error("Signature verification failed: signedData is empty");
+                    handleInvalidResponse();
+                    return;
+                }
+
                 Signature sig = Signature.getInstance(SIGNATURE_ALGORITHM);
                 sig.initVerify(publicKey);
                 sig.update(signedData.getBytes());

@@ -18,7 +18,7 @@ android {
         minSdkVersion 4
         targetSdkVersion 22
         versionCode 2
-        versionName '1.5.1'
+        versionName '1.5.3'
     }
 }
 
@@ -31,7 +31,7 @@ publish {
     repoName = 'apk-expansion'
     groupId = 'com.danikula.expansion'
     artifactId = 'license'
-    publishVersion = '1.5.1'
+    publishVersion = '1.5.3'
     description = 'Google`s `play_licensing` open source project.'
     website = 'https://github.com/danikula/Google-Play-Expansion-File'
 }
