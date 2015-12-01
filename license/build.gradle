@@ -11,7 +11,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'bintray-release'
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 23
     buildToolsVersion '22.0.1'
 
     defaultConfig {
@@ -23,6 +23,7 @@ android {
 }
 
 dependencies {
+    compile files ('libs/org.apache.http.legacy.jar')
     compile 'org.slf4j:slf4j-api:1.7.7'
 }
 
