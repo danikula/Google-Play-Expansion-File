@@ -38,7 +38,7 @@ publish {
     repoName = 'apk-expansion'
     groupId = 'com.danikula.expansion'
     artifactId = 'expansion'
-    publishVersion = '1.1.2'
+    publishVersion = '1.2.0'
     description = 'Google`s `play_apk_expansion` open source project.'
     website = 'https://github.com/danikula/Google-Play-Expansion-File'
 }

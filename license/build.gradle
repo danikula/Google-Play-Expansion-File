@@ -32,7 +32,7 @@ publish {
     repoName = 'apk-expansion'
     groupId = 'com.danikula.expansion'
     artifactId = 'license'
-    publishVersion = '1.5.3'
+    publishVersion = '1.6.0'
     description = 'Google`s `play_licensing` open source project.'
     website = 'https://github.com/danikula/Google-Play-Expansion-File'
 }
