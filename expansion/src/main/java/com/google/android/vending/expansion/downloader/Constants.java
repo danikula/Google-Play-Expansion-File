@@ -87,7 +87,7 @@ public class Constants {
     /**
      * The maximum number of redirects.
      */
-    public static final int MAX_REDIRECTS = 5; // can't be more than 7.
+    public static final int MAX_REDIRECTS = 10;
 
     /**
      * The time between a failure and the first retry after an IOException.
