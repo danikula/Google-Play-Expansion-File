@@ -14,6 +14,7 @@ package com.android.vending.expansion.zipfile;/*
  * limitations under the License.
  */
 import android.content.Context;
+import android.os.Build;
 import android.os.Environment;
 
 import java.io.File;
@@ -23,6 +24,7 @@ import java.util.Vector;
 public class APKExpansionSupport {
 	// The shared path to all app expansion files
 	private final static String EXP_PATH = "/Android/obb/";
+	private final static String EXP_PATH_API_23 = "/Android/data/"; // to avoid requesting storage permissions
 
 	static String[] getAPKExpansionFiles(Context ctx, int mainVersion, int patchVersion) {
 		String packageName = ctx.getPackageName();
@@ -31,7 +33,8 @@ public class APKExpansionSupport {
 				Environment.MEDIA_MOUNTED)) {
 			// Build the full path to the app's expansion files
 			File root = Environment.getExternalStorageDirectory();
-			File expPath = new File(root.toString() + EXP_PATH + packageName);
+			String path = Build.VERSION.SDK_INT >=23 ? EXP_PATH_API_23 : EXP_PATH;
+			File expPath = new File(root.toString() + path + packageName);
 
 			// Check that expansion file path exists
 			if (expPath.exists()) {

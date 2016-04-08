@@ -8,3 +8,4 @@
 /license/build
 /zip/build
 *.iml
+publish.sh
