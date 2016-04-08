@@ -15,11 +15,12 @@ repositories {
 }
 
 dependencies {
-    compile 'com.danikula.expansion:expansion:1.1@aar'
-    compile 'com.danikula.expansion:license:1.5@aar'
-    compile 'com.danikula.expansion:zip:1.1@aar'
+    compile 'com.danikula.expansion:expansion:VERSION@aar'
+    compile 'com.danikula.expansion:license:VERSION@aar'
+    compile 'com.danikula.expansion:zip:VERSION@aar'
 }
 ```
+See the latest versions [here](https://bintray.com/alexeydanilov/apk-expansion).
 
 ## Thanks
 Thanks for [bintray-release](https://github.com/novoda/bintray-release) for easy publishing.
