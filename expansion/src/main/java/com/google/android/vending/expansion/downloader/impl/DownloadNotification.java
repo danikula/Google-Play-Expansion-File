@@ -74,6 +74,7 @@ public class DownloadNotification implements IDownloaderClient {
 
     @Override
     public void onDownloadStateChanged(int newState) {
+        boolean completed = false;
         if (null != mClientProxy) {
             mClientProxy.onDownloadStateChanged(newState);
         }
@@ -108,6 +109,7 @@ public class DownloadNotification implements IDownloaderClient {
                     break;
 
                 case IDownloaderClient.STATE_COMPLETED:
+                    completed = true;
                 case IDownloaderClient.STATE_PAUSED_BY_REQUEST:
                     iconResource = android.R.drawable.stat_sys_download_done;
                     stringDownloadID = Helpers.getDownloaderStringResourceIDFromState(newState);
@@ -130,16 +132,20 @@ public class DownloadNotification implements IDownloaderClient {
                     ongoingEvent = true;
                     break;
             }
-            mCurrentText = mContext.getString(stringDownloadID);
-            mCurrentTitle = mLabel.toString();
-            mCurrentNotificationBuilder.setTicker(mLabel + ": " + mCurrentText);
-            mCurrentNotificationBuilder.setSmallIcon(iconResource);
-            mCurrentNotificationBuilder.setContentTitle(mCurrentTitle);
-            mCurrentNotificationBuilder.setContentText(mCurrentText);
-            mCurrentNotificationBuilder.setContentIntent(mContentIntent);
-            mCurrentNotificationBuilder.setOngoing(ongoingEvent);
-            mCurrentNotificationBuilder.setAutoCancel(!ongoingEvent);
-            mNotificationManager.notify(NOTIFICATION_ID, mCurrentNotificationBuilder.build());
+            if (completed) {
+                mNotificationManager.cancel(NOTIFICATION_ID);
+            } else {
+                mCurrentText = mContext.getString(stringDownloadID);
+                mCurrentTitle = mLabel.toString();
+                mCurrentNotificationBuilder.setTicker(mLabel + ": " + mCurrentText);
+                mCurrentNotificationBuilder.setSmallIcon(iconResource);
+                mCurrentNotificationBuilder.setContentTitle(mCurrentTitle);
+                mCurrentNotificationBuilder.setContentText(mCurrentText);
+                mCurrentNotificationBuilder.setContentIntent(mContentIntent);
+                mCurrentNotificationBuilder.setOngoing(ongoingEvent);
+                mCurrentNotificationBuilder.setAutoCancel(!ongoingEvent);
+                mNotificationManager.notify(NOTIFICATION_ID, mCurrentNotificationBuilder.build());
+            }
         }
     }
 
@@ -191,7 +197,7 @@ public class DownloadNotification implements IDownloaderClient {
     /**
      * Called in response to onClientUpdated. Creates a new proxy and notifies
      * it of the current state.
-     * 
+     *
      * @param msg the client Messenger to notify
      */
     public void setMessenger(Messenger msg) {
@@ -206,7 +212,7 @@ public class DownloadNotification implements IDownloaderClient {
 
     /**
      * Constructor
-     * 
+     *
      * @param ctx The context to use to obtain access to the Notification
      *            Service
      */
