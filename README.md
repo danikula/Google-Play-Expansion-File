@@ -1,6 +1,8 @@
 ## What is it?
 Google's library for managing [APK expansion files](http://developer.android.com/google/play/expansion-files.html).
 
+**Note:** This is *not* a direct copy of Google's library. It includes additional bug fixes and improvements. These include a workaround to an [Android 6 permissions bug](https://code.google.com/p/android/issues/detail?id=197287), which requires users to download two copies of your expansion file. As such, it may not be suitable for projects with very large expansion files.
+
 ## Why here?
 Because of Google hasn't published it to any repository yet.
 
